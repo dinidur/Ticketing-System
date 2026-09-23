@@ -10,6 +10,7 @@ from app.services import ticket_service
 from app.services.ticket_service import TicketNotFoundError
 from app.schemas.ticket import TicketAssign, TicketCreate, TicketPage, TicketRead
 from app.services.ticket_service import TicketAlreadyAssignedError, TicketNotFoundError
+
 router = APIRouter(prefix="/tickets", tags=["tickets"])
 
 
@@ -30,7 +31,12 @@ def list_tickets(
 ) -> TicketPage:
     try:
         items, next_cursor = ticket_service.list_tickets(
-            db, limit=limit, cursor=cursor, priority=priority, assigned=assigned, tag=tag
+            db,
+            limit=limit,
+            cursor=cursor,
+            priority=priority,
+            assigned=assigned,
+            tag=tag,
         )
     except InvalidCursorError:
         raise HTTPException(status.HTTP_400_BAD_REQUEST, "Invalid cursor") from None
@@ -50,9 +56,13 @@ def get_ticket(ticket_id: int, db: DbSession) -> TicketRead:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Ticket not found") from None
     return TicketRead.model_validate(ticket)
 
+
 @router.post(
     "/{ticket_id}/assign",
-    responses={404: {"description": "Ticket not found"}, 409: {"description": "Already assigned"}},
+    responses={
+        404: {"description": "Ticket not found"},
+        409: {"description": "Already assigned"},
+    },
 )
 def assign_ticket(ticket_id: int, payload: TicketAssign, db: DbSession) -> TicketRead:
     try:

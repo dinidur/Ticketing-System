@@ -13,7 +13,18 @@ from sqlalchemy import insert
 from app.db.session import SessionLocal
 from app.models import Priority, Ticket
 
-TAGS = ["billing", "login", "bug", "network", "email", "hardware", "vpn", "security", "performance", "ui"]
+TAGS = [
+    "billing",
+    "login",
+    "bug",
+    "network",
+    "email",
+    "hardware",
+    "vpn",
+    "security",
+    "performance",
+    "ui",
+]
 SUBJECTS = [
     "Cannot log in",
     "VPN keeps disconnecting",

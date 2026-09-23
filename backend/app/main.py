@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
-from app.api.routes import tickets    
+from app.api.routes import tickets
 from app.core.config import settings
 from app.db.session import DbSession
 
@@ -14,7 +14,8 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-app.include_router(tickets.router, prefix="/api/v1")   # ← අලුත්
+app.include_router(tickets.router, prefix="/api/v1")  # ← අලුත්
+
 
 @app.get("/health", tags=["health"])
 def health(db: DbSession) -> dict[str, str]:
