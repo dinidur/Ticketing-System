@@ -1,5 +1,6 @@
 from datetime import datetime
 from typing import Annotated
+
 from pydantic import (
     BaseModel,
     ConfigDict,
@@ -8,19 +9,16 @@ from pydantic import (
     StringConstraints,
     field_validator,
 )
+
 from app.models.ticket import Priority
 
-Title = Annotated[
-    str, StringConstraints(strip_whitespace=True, min_length=3, max_length=200)
-]
+Title = Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=200)]
 Description = Annotated[
     str, StringConstraints(strip_whitespace=True, min_length=1, max_length=10_000)
 ]
 Tag = Annotated[
     str,
-    StringConstraints(
-        strip_whitespace=True, to_lower=True, min_length=1, max_length=50
-    ),
+    StringConstraints(strip_whitespace=True, to_lower=True, min_length=1, max_length=50),
 ]
 
 

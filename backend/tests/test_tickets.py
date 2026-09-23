@@ -132,9 +132,7 @@ def test_limit_above_max_returns_422(client):
 
 def test_assign_ticket(client):
     ticket = make_ticket(client)
-    response = client.post(
-        f"{API}/{ticket['id']}/assign", json={"email": "Alice@Support.io"}
-    )
+    response = client.post(f"{API}/{ticket['id']}/assign", json={"email": "Alice@Support.io"})
 
     assert response.status_code == 200
     body = response.json()
@@ -146,14 +144,10 @@ def test_assign_already_assigned_returns_409_and_keeps_owner(client):
     ticket = make_ticket(client)
     client.post(f"{API}/{ticket['id']}/assign", json={"email": "alice@support.io"})
 
-    response = client.post(
-        f"{API}/{ticket['id']}/assign", json={"email": "bob@support.io"}
-    )
+    response = client.post(f"{API}/{ticket['id']}/assign", json={"email": "bob@support.io"})
 
     assert response.status_code == 409
-    assert (
-        client.get(f"{API}/{ticket['id']}").json()["assigned_to"] == "alice@support.io"
-    )
+    assert client.get(f"{API}/{ticket['id']}").json()["assigned_to"] == "alice@support.io"
 
 
 def test_assign_missing_ticket_returns_404(client):
@@ -163,9 +157,7 @@ def test_assign_missing_ticket_returns_404(client):
 
 def test_assign_invalid_email_returns_422(client):
     ticket = make_ticket(client)
-    response = client.post(
-        f"{API}/{ticket['id']}/assign", json={"email": "not-an-email"}
-    )
+    response = client.post(f"{API}/{ticket['id']}/assign", json={"email": "not-an-email"})
     assert response.status_code == 422
 
 
@@ -180,9 +172,7 @@ def test_concurrent_claims_only_one_agent_wins(client):
         with SessionLocal() as db:
             barrier.wait()  # everyone fires at the same moment
             try:
-                ticket_service.assign_ticket(
-                    db, ticket_id, f"agent{agent_no}@support.io"
-                )
+                ticket_service.assign_ticket(db, ticket_id, f"agent{agent_no}@support.io")
                 return "won"
             except TicketAlreadyAssignedError:
                 return "conflict"

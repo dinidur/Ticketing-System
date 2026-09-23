@@ -6,17 +6,17 @@ Create Date: 2026-09-23 20:55:28.441762
 
 """
 
-from typing import Sequence, Union
+from collections.abc import Sequence
 
-from alembic import op
 import sqlalchemy as sa
+from alembic import op
 from sqlalchemy.dialects import postgresql
 
 # revision identifiers, used by Alembic.
 revision: str = "6c917e40d7ce"
-down_revision: Union[str, Sequence[str], None] = None
-branch_labels: Union[str, Sequence[str], None] = None
-depends_on: Union[str, Sequence[str], None] = None
+down_revision: str | Sequence[str] | None = None
+branch_labels: str | Sequence[str] | None = None
+depends_on: str | Sequence[str] | None = None
 
 
 def upgrade() -> None:
@@ -59,13 +59,9 @@ def upgrade() -> None:
         ),
         sa.PrimaryKeyConstraint("id", name=op.f("pk_tickets")),
     )
-    op.create_index(
-        "ix_tickets_created_at_id", "tickets", ["created_at", "id"], unique=False
-    )
+    op.create_index("ix_tickets_created_at_id", "tickets", ["created_at", "id"], unique=False)
     op.create_index("ix_tickets_priority", "tickets", ["priority"], unique=False)
-    op.create_index(
-        "ix_tickets_tags", "tickets", ["tags"], unique=False, postgresql_using="gin"
-    )
+    op.create_index("ix_tickets_tags", "tickets", ["tags"], unique=False, postgresql_using="gin")
     # ### end Alembic commands ###
 
 

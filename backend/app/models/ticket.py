@@ -40,14 +40,10 @@ class Ticket(Base):
         default=Priority.MEDIUM,
         server_default=Priority.MEDIUM.value,
     )
-    tags: Mapped[list[str]] = mapped_column(
-        ARRAY(String(50)), default=list, server_default="{}"
-    )
+    tags: Mapped[list[str]] = mapped_column(ARRAY(String(50)), default=list, server_default="{}")
     assigned_to: Mapped[str | None] = mapped_column(String(320))
     assigned_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True))
-    created_at: Mapped[datetime] = mapped_column(
-        DateTime(timezone=True), server_default=func.now()
-    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), server_default=func.now())
     updated_at: Mapped[datetime] = mapped_column(
         DateTime(timezone=True), server_default=func.now(), onupdate=func.now()
     )

@@ -28,9 +28,7 @@ BACKEND_DIR = Path(__file__).resolve().parents[1]
 
 def _create_database_if_missing(url: str) -> None:
     db_url = make_url(url)
-    admin_engine = create_engine(
-        db_url.set(database="postgres"), isolation_level="AUTOCOMMIT"
-    )
+    admin_engine = create_engine(db_url.set(database="postgres"), isolation_level="AUTOCOMMIT")
     with admin_engine.connect() as conn:
         exists = conn.scalar(
             text("SELECT 1 FROM pg_database WHERE datname = :name"),

@@ -1,10 +1,9 @@
-from sqlalchemy import select, tuple_
+from sqlalchemy import func, select, tuple_, update
 from sqlalchemy.orm import Session
 
 from app.core.pagination import decode_cursor, encode_cursor
 from app.models import Priority, Ticket
 from app.schemas.ticket import TicketCreate
-from sqlalchemy import func, select, tuple_, update
 
 
 class TicketNotFoundError(Exception):
@@ -50,9 +49,7 @@ def list_tickets(
     if cursor:
         created_at, ticket_id = decode_cursor(cursor)
         # Keyset pagination: continue right after the last row of the previous page
-        stmt = stmt.where(
-            tuple_(Ticket.created_at, Ticket.id) < tuple_(created_at, ticket_id)
-        )
+        stmt = stmt.where(tuple_(Ticket.created_at, Ticket.id) < tuple_(created_at, ticket_id))
 
     # Fetch one extra row to know if there is a next page
     stmt = stmt.order_by(Ticket.created_at.desc(), Ticket.id.desc()).limit(limit + 1)
@@ -60,9 +57,7 @@ def list_tickets(
 
     has_more = len(rows) > limit
     items = rows[:limit]
-    next_cursor = (
-        encode_cursor(items[-1].created_at, items[-1].id) if has_more else None
-    )
+    next_cursor = encode_cursor(items[-1].created_at, items[-1].id) if has_more else None
     return items, next_cursor
 
 

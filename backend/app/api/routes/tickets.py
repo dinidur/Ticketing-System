@@ -5,10 +5,8 @@ from fastapi import APIRouter, HTTPException, Query, status
 from app.core.pagination import InvalidCursorError
 from app.db.session import DbSession
 from app.models import Priority
-from app.schemas.ticket import TicketCreate, TicketPage, TicketRead
-from app.services import ticket_service
-from app.services.ticket_service import TicketNotFoundError
 from app.schemas.ticket import TicketAssign, TicketCreate, TicketPage, TicketRead
+from app.services import ticket_service
 from app.services.ticket_service import TicketAlreadyAssignedError, TicketNotFoundError
 
 router = APIRouter(prefix="/tickets", tags=["tickets"])

@@ -29,9 +29,7 @@ def main() -> None:
         },
     ).json()
     ticket_id = ticket["id"]
-    print(
-        f"Created ticket #{ticket_id}. Sending {args.agents} claims at the same moment..."
-    )
+    print(f"Created ticket #{ticket_id}. Sending {args.agents} claims at the same moment...")
 
     # 2. A barrier makes all threads fire at (almost) exactly the same time
     barrier = threading.Barrier(args.agents)
@@ -39,9 +37,7 @@ def main() -> None:
     def claim(agent_no: int) -> tuple[str, int]:
         email = f"agent{agent_no}@support.io"
         barrier.wait()
-        response = httpx.post(
-            f"{BASE_URL}/tickets/{ticket_id}/assign", json={"email": email}
-        )
+        response = httpx.post(f"{BASE_URL}/tickets/{ticket_id}/assign", json={"email": email})
         return email, response.status_code
 
     with ThreadPoolExecutor(max_workers=args.agents) as pool:
@@ -56,11 +52,7 @@ def main() -> None:
     print(f"Winner(s):    {winners}")
     print(f"Owner in DB:  {final_owner}")
 
-    ok = (
-        len(winners) == 1
-        and codes[409] == args.agents - 1
-        and final_owner == winners[0]
-    )
+    ok = len(winners) == 1 and codes[409] == args.agents - 1 and final_owner == winners[0]
     print("✅ PASS: exactly one agent won" if ok else "❌ FAIL: race condition!")
 
 

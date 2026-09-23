@@ -1,6 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
+
 from app.api.routes import tickets
 from app.core.config import settings
 from app.db.session import DbSession
