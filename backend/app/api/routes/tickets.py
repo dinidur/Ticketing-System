@@ -8,7 +8,8 @@ from app.models import Priority
 from app.schemas.ticket import TicketCreate, TicketPage, TicketRead
 from app.services import ticket_service
 from app.services.ticket_service import TicketNotFoundError
-
+from app.schemas.ticket import TicketAssign, TicketCreate, TicketPage, TicketRead
+from app.services.ticket_service import TicketAlreadyAssignedError, TicketNotFoundError
 router = APIRouter(prefix="/tickets", tags=["tickets"])
 
 
@@ -47,4 +48,19 @@ def get_ticket(ticket_id: int, db: DbSession) -> TicketRead:
         ticket = ticket_service.get_ticket(db, ticket_id)
     except TicketNotFoundError:
         raise HTTPException(status.HTTP_404_NOT_FOUND, "Ticket not found") from None
+    return TicketRead.model_validate(ticket)
+
+@router.post(
+    "/{ticket_id}/assign",
+    responses={404: {"description": "Ticket not found"}, 409: {"description": "Already assigned"}},
+)
+def assign_ticket(ticket_id: int, payload: TicketAssign, db: DbSession) -> TicketRead:
+    try:
+        ticket = ticket_service.assign_ticket(db, ticket_id, payload.email)
+    except TicketNotFoundError:
+        raise HTTPException(status.HTTP_404_NOT_FOUND, "Ticket not found") from None
+    except TicketAlreadyAssignedError as exc:
+        raise HTTPException(
+            status.HTTP_409_CONFLICT, f"Ticket is already assigned to {exc.assigned_to}"
+        ) from None
     return TicketRead.model_validate(ticket)

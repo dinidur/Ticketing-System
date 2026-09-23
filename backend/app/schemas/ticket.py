@@ -1,8 +1,6 @@
 from datetime import datetime
 from typing import Annotated
-
-from pydantic import BaseModel, ConfigDict, Field, StringConstraints, field_validator
-
+from pydantic import BaseModel, ConfigDict, EmailStr, Field, StringConstraints, field_validator
 from app.models.ticket import Priority
 
 Title = Annotated[str, StringConstraints(strip_whitespace=True, min_length=3, max_length=200)]
@@ -49,3 +47,13 @@ class TicketPage(BaseModel):
     items: list[TicketRead]
     next_cursor: str | None
     has_more: bool
+
+class TicketAssign(BaseModel):
+    """Request body for claiming a ticket."""
+
+    email: EmailStr
+
+    @field_validator("email")
+    @classmethod
+    def normalize_email(cls, email: str) -> str:
+        return email.strip().lower()

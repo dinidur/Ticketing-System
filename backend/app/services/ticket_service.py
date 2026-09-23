@@ -4,7 +4,7 @@ from sqlalchemy.orm import Session
 from app.core.pagination import decode_cursor, encode_cursor
 from app.models import Priority, Ticket
 from app.schemas.ticket import TicketCreate
-
+from sqlalchemy import func, select, tuple_, update
 
 class TicketNotFoundError(Exception):
     """Raised when a ticket does not exist."""
@@ -59,3 +59,37 @@ def list_tickets(
     items = rows[:limit]
     next_cursor = encode_cursor(items[-1].created_at, items[-1].id) if has_more else None
     return items, next_cursor
+
+
+class TicketAlreadyAssignedError(Exception):
+    """Raised when someone tries to claim a ticket that already has an owner."""
+
+    def __init__(self, assigned_to: str | None) -> None:
+        self.assigned_to = assigned_to
+        super().__init__(f"Ticket is already assigned to {assigned_to}")
+
+
+def assign_ticket(db: Session, ticket_id: int, email: str) -> Ticket:
+    """Claim a ticket. Race-safe: only the first agent can succeed.
+
+    The ownership check and the write happen in ONE atomic UPDATE statement,
+    so two agents claiming at the same moment can never both succeed.
+    """
+    stmt = (
+        update(Ticket)
+        .where(Ticket.id == ticket_id, Ticket.assigned_to.is_(None))
+        .values(assigned_to=email, assigned_at=func.now())
+        .returning(Ticket)
+    )
+    ticket = db.scalars(stmt).one_or_none()
+
+    if ticket is None:
+        # 0 rows updated: either the ticket does not exist, or it already has an owner
+        db.rollback()
+        existing = db.get(Ticket, ticket_id)
+        if existing is None:
+            raise TicketNotFoundError(ticket_id)
+        raise TicketAlreadyAssignedError(existing.assigned_to)
+
+    db.commit()
+    return ticket
